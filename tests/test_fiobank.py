@@ -1,27 +1,16 @@
 # -*- coding: utf-8 -*-
 
-
-from __future__ import unicode_literals
-
-try:
-    from unittest import mock  # PY>=3.3
-except ImportError:
-    import mock
-
 import re
 import os
 import uuid
 import json
 from datetime import date
+from unittest import mock
 
-import six
 import pytest
 import requests
 import responses
 from fiobank import FioBank
-
-
-str = six.text_type
 
 
 @pytest.fixture(scope='function')
@@ -62,12 +51,10 @@ def test_info_integration(client):
 
 def test_info_uses_today(transactions_json):
     client = FioBank('...')
-    today = date.today()
-
     options = {'return_value': transactions_json}
     with mock.patch.object(client, '_request', **options) as stub:
         client.info()
-        stub.assert_called_once_with('periods', from_date=today, to_date=today)
+        stub.assert_called_once_with('last')
 
 
 def test_info_is_case_insensitive(transactions_json):
