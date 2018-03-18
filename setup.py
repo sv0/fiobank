@@ -1,8 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
-from __future__ import print_function
-
 import sys
 from setuptools import setup
 
@@ -19,7 +14,6 @@ version = '1.2.0'
 
 install_requires = [
     'requests',
-    'six',
 ]
 tests_require = [
     'pytest-runner',
@@ -55,10 +49,7 @@ setup(
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: ISC License (ISCL)',
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 3 :: Only',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3',
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Topic :: Internet',
     ),

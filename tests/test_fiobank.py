@@ -1,9 +1,7 @@
-# -*- coding: utf-8 -*-
-
-import re
-import os
-import uuid
 import json
+import os
+import re
+import uuid
 from datetime import date
 from unittest import mock
 

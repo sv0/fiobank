@@ -2,9 +2,9 @@ sudo: false
 language: "python"
 cache: "pip"
 python:
-  - "2.7"
   - "3.5"
   - "3.6"
+  - "3.7"
 env:
   global:  # 'travis encrypt PYPI_PASSWORD=... GH_TOKEN=...'
     - PYPI_USERNAME=honzajavorek
