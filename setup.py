@@ -1,8 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
-from __future__ import print_function
-
 import sys
 from setuptools import setup
 
@@ -14,17 +9,16 @@ except ImportError:
     print(message, file=sys.stderr)
 
 
-version = '1.2.0'
+version = '2.0.0'
 
 
 install_requires = [
     'requests',
-    'six',
 ]
 tests_require = [
     'pytest-runner',
     'pytest',
-    'flake8',
+    'pylama',
     'responses',
     'mock',
     'coveralls',
@@ -43,7 +37,7 @@ setup(
     author='Honza Javorek',
     author_email='mail@honzajavorek.cz',
     url='https://github.com/honzajavorek/fiobank',
-    license=open('LICENSE').read(),
+    license='ISC',
     py_modules=('fiobank',),
     install_requires=install_requires,
     tests_require=tests_require,
@@ -56,8 +50,7 @@ setup(
         'Intended Audience :: Developers',
         'License :: OSI Approved :: ISC License (ISCL)',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2.6',
-        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Topic :: Internet',
     ),
