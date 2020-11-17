@@ -1,11 +1,29 @@
-from datetime import datetime, date
+# -*- coding: utf-8 -*-
+from datetime import datetime, date, timedelta
+
+from functools import wraps
 import re
+import time
 import warnings
+
 
 import requests
 
 
 __all__ = ('FioBank', 'ThrottlingError')
+
+
+def decor(func):
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        print(f'Args: {args}')
+        print(f'Kwargs: {kwargs}')
+
+        return func(*args, **kwargs)
+
+    print(f'"{func.__name__}" function was decorated.')
+    return wrapper
 
 
 def coerce_date(value):
@@ -32,7 +50,58 @@ class ThrottlingError(Exception):
         return 'Token should be used only once per 30s.'
 
 
-class FioBank(object):
+class Query(object):
+    """Base class representing a query to the FioBank API
+        https://www.fio.cz/docs/cz/API_Bankovnictvi.pdf
+
+    {'account_name': None,
+    'account_number': None,
+    'account_number_full': None,
+    'amount': -173.4,
+    'bank_code': None,
+    'bank_name': None,
+    'bic': None,
+    'comment': u'N\xe1kup: ALBERT 0669, BRNO, dne 21.10.2016',
+    'constant_symbol': None,
+    'currency': u'CZK',
+    'date': datetime.date(2016, 10, 23),
+    'executor': u'Svyrydiuk, Viacheslav',
+    'instruction_id': u'14863889098',
+    'original_amount': None,
+    'original_currency': None,
+    'recipient_message': u'N\xe1kup: ALBERT BRNO, dne 21.12.2017',
+    'specific_symbol': None,
+    'specification': None,
+    'transaction_id': u'13351406489',
+    'type': u'Platba kartou',
+    'user_identification': u'N\xe1kup: ALBERT, BRNO, dne 21.12.2017',
+    'variable_symbol': u'9362'}
+    """
+
+    _cache = []
+
+    def __init__(self, account):
+        self.account = account
+
+    def __getitem__(self, key):
+        return key * 2
+
+    def __iter__(self):
+        print('__iter__')
+
+    def filter(self, *args, **kwargs):
+        print('filter')
+
+    def all(self):
+        today = datetime.today()
+        from_date = today - timedelta(days=365*3)
+        return self.account.period(from_date, today)
+
+
+class Account:
+
+    cache = {}
+    last_request_timestamp = 0
 
     base_url = 'https://www.fio.cz/ib_api/rest/'
 
@@ -80,18 +149,38 @@ class FioBank(object):
 
     def __init__(self, token):
         self.token = token
+        self.transactions = Query(self)
+
+    def __repr__(self):
+        return f'{self.__class__.__name__}(token="{self.token}")'
+
+    def _get_cached_response_json(self, url: str) -> dict:
+        print(url)
+        # last request was performed less than 30 sec ago
+        return self.cache.get(url) \
+            if time.time() - self.last_request_timestamp < 30 \
+            else None
 
     def _request(self, action, **params):
+        # import ipdb
+        # ipdb.set_trace()
+
         template = self.base_url + self.actions[action]
         url = template.format(token=self.token, **params)
-
+        cached_response_json = self._get_cached_response_json(url)
+        if cached_response_json:
+            print(f'There is cached response for {url}')
+            return cached_response_json
         response = requests.get(url)
+
         if response.status_code == requests.codes['conflict']:
             raise ThrottlingError()
 
         response.raise_for_status()
 
         if response.content:
+            self.cache[url] = response.json()
+            self.last_request_timestamp = time.time()
             return response.json()
         return None
 
@@ -207,3 +296,13 @@ class FioBank(object):
             self._request('set-last-date', from_date=coerce_date(from_date))
 
         return self._parse_transactions(self._request('last'))
+
+
+class FioBank(Account):
+
+    def __init__(self, token):
+        warnings.warn(
+            'fiobank.FioBank class was renamed to fiobank.Account',
+            DeprecationWarning
+        )
+        super().__init__(token)
