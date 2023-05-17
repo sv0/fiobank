@@ -6,11 +6,10 @@ import re
 import time
 import warnings
 
-
 import requests
 
 
-__all__ = ('FioBank', 'ThrottlingError')
+__all__ = ('Account', 'FioBank', 'ThrottlingError')
 
 
 def decor(func):
@@ -50,7 +49,7 @@ class ThrottlingError(Exception):
         return 'Token should be used only once per 30s.'
 
 
-class Query(object):
+class Query:
     """Base class representing a query to the FioBank API
         https://www.fio.cz/docs/cz/API_Bankovnictvi.pdf
 
