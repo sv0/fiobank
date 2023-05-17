@@ -155,7 +155,7 @@ class Account:
         return f'{self.__class__.__name__}(token="{self.token}")'
 
     def _get_cached_response_json(self, url: str) -> dict:
-        print(url)
+        # print(url)
         # last request was performed less than 30 sec ago
         return self.cache.get(url) \
             if time.time() - self.last_request_timestamp < 30 \
@@ -169,7 +169,7 @@ class Account:
         url = template.format(token=self.token, **params)
         cached_response_json = self._get_cached_response_json(url)
         if cached_response_json:
-            print(f'There is cached response for {url}')
+            # print(f'There is cached response for {url}')
             return cached_response_json
         response = requests.get(url)
 
@@ -272,6 +272,7 @@ class Account:
 
         obj['account_number_full'] = account_number_full
 
+    @property
     def info(self) -> dict:
         data = self._request('last')
         return self._get_account_info(data)
