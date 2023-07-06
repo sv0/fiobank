@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime, date, timedelta
+import datetime
 
 from functools import wraps
 import re
@@ -26,12 +26,12 @@ def decor(func):
 
 
 def coerce_date(value):
-    if isinstance(value, datetime):
+    if isinstance(value, datetime.datetime):
         return value.date()
-    elif isinstance(value, date):
+    elif isinstance(value, datetime.date):
         return value
     else:
-        return datetime.strptime(value[:10], '%Y-%m-%d').date()
+        return datetime.datetime.strptime(value[:10], '%Y-%m-%d').date()
 
 
 def sanitize_value(value, convert=None):
@@ -63,7 +63,7 @@ class Query:
     'comment': u'N\xe1kup: ALBERT 0669, BRNO, dne 21.10.2016',
     'constant_symbol': None,
     'currency': u'CZK',
-    'date': datetime.date(2016, 10, 23),
+    'date': datetime.datetime.date(2016, 10, 23),
     'executor': u'Svyrydiuk, Viacheslav',
     'instruction_id': u'14863889098',
     'original_amount': None,
@@ -92,9 +92,23 @@ class Query:
         print('filter')
 
     def all(self):
-        today = datetime.today()
-        from_date = today - timedelta(days=365*3)
+        today = datetime.datetime.today()
+        from_date = today - datetime.timedelta(days=365*3)
         return self.account.period(from_date, today)
+
+    def latest(self):
+        """Return the latest transaction)"""
+        self.account._request(
+            'set-last-date',
+            from_date=coerce_date(datetime.date.today() - datetime.timedelta(days=30))  # noqa
+        )
+        transactions = self.account._parse_transactions(
+            self.account._request('last')
+        )
+        try:
+            return list(transactions)[-1]
+        except IndexError:
+            return None
 
 
 class Account:
@@ -155,7 +169,6 @@ class Account:
         return f'{self.__class__.__name__}(token="{self.token}")'
 
     def _get_cached_response_json(self, url: str) -> dict:
-        # print(url)
         # last request was performed less than 30 sec ago
         return self.cache.get(url) \
             if time.time() - self.last_request_timestamp < 30 \
