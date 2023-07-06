@@ -1,5 +1,7 @@
-import re
+# -*- coding: utf-8 -*-
 from datetime import datetime, date
+import re
+import warnings
 
 import requests
 
@@ -96,7 +98,31 @@ class FioBank(object):
         return None
 
     def _parse_info(self, data):
-        # parse data from API
+        warnings.warn(
+            '_parse_info was renamed to _parse_account_info',
+            DeprecationWarning
+        )
+        return self._get_account_info(data)
+
+    def _get_account_info(self, data: dict) -> dict:
+        """Get FioBank account information.
+
+        Args:
+            data (dict): data obtained from
+            https://www.fio.cz/ib_api/rest/last/<token>/transactions.json
+
+        Returns:
+            dict: The dictionary which contains Fiobank account information.
+                Example:
+
+                {'account_number': '2400111111',
+                 'account_number_full': '2400111111/2010',
+                 'balance': 1573237.52,
+                 'bank_code': '2010',
+                 'bic': 'FIOBCZPPXXX',
+                 'currency': 'CZK',
+                 'iban': 'CZ1120100000002400111111'}
+        """
         info = {}
         for key, value in data['accountStatement']['info'].items():
             key = key.lower()
@@ -159,10 +185,9 @@ class FioBank(object):
 
         obj['account_number_full'] = account_number_full
 
-    def info(self):
-        today = date.today()
-        data = self._request('periods', from_date=today, to_date=today)
-        return self._parse_info(data)
+    def info(self) -> dict:
+        data = self._request('last')
+        return self._get_account_info(data)
 
     def period(self, from_date, to_date):
         data = self._request('periods',

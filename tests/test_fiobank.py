@@ -1,10 +1,10 @@
-from unittest import mock
-
+# -*- coding: utf-8 -*-
 import re
 import os
 import uuid
 import json
 from datetime import date
+from unittest import mock
 
 import pytest
 import requests
@@ -50,12 +50,10 @@ def test_info_integration(client):
 
 def test_info_uses_today(transactions_json):
     client = FioBank('...')
-    today = date.today()
-
     options = {'return_value': transactions_json}
     with mock.patch.object(client, '_request', **options) as stub:
         client.info()
-        stub.assert_called_once_with('periods', from_date=today, to_date=today)
+        stub.assert_called_once_with('last')
 
 
 def test_info_is_case_insensitive(transactions_json):
