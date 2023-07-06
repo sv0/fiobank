@@ -18,18 +18,19 @@ Usage
 
 First, `get your API
 token <https://ib.fio.cz/ib/wicket/page/NastaveniPage?4>`__.
+
 Initialization of the client:
 
 .. code:: python
 
-    >>> from fiobank import FioBank
-    >>> client = FioBank(token='...')
+    >>> import fiobank
+    >>> account = fiobank.Account(token='...')
 
 Account information:
 
 .. code:: python
 
-    >>> client.info()
+    >>> account.info()
     {
       'currency': 'CZK',
       'account_number_full': 'XXXXXXXXXX/2010',
@@ -42,7 +43,7 @@ Listing transactions within a period:
 
 .. code:: python
 
-    >>> gen = client.period('2013-01-20', '2013-03-20')
+    >>> gen = account.period('2013-01-20', '2013-03-20')
     >>> list(gen)[0]
     {
       'comment': 'N\xe1kup: IKEA CR, BRNO, CZ, dne 17.1.2013, \u010d\xe1stka  2769.00 CZK',
@@ -61,15 +62,15 @@ Listing transactions from a single account statement:
 
 .. code:: python
 
-    >>> client.statement(2013, 1)  # 1 is January only by coincidence - arguments mean 'first statement of 2013'
+    >>> account.statement(2013, 1)  # 1 is January only by coincidence - arguments mean 'first statement of 2013'
 
 Listing the latest transactions:
 
 .. code:: python
 
-    >>> client.last()  # return transactions added from last listing
-    >>> client.last(from_id='...')  # sets cursor to given transaction_id and returns following transactions
-    >>> client.last(from_date='2013-03-01')  # sets cursor to given date and returns following transactions
+    >>> account.last()  # return transactions added from last listing
+    >>> account.last(from_id='...')  # sets cursor to given transaction_id and returns following transactions
+    >>> account.last(from_date='2013-03-01')  # sets cursor to given date and returns following transactions
 
 Conflict Error
 --------------
